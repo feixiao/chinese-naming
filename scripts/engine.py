@@ -276,6 +276,59 @@ def get_bazi_pillars(solar_dt: datetime) -> dict:
     }
 
 
+def calculate_dayun(pillars: dict, gender: str = "") -> dict:
+    """
+    Calculate DaYun (大运) pillars and direction based on gender and year stem polarity.
+    Rule: Yang stem + Male / Yin stem + Female -> Forward (顺行)
+          Yang stem + Female / Yin stem + Male -> Backward (逆行)
+    """
+    g = gender.strip().lower() if gender else ""
+    if g in ["男", "男宝", "乾", "乾造", "boy", "male", "m"]:
+        norm_gender = "男"
+        zaohua = "乾造"
+    elif g in ["女", "女宝", "坤", "坤造", "girl", "female", "f"]:
+        norm_gender = "女"
+        zaohua = "坤造"
+    else:
+        norm_gender = "未知"
+        zaohua = "未定造化"
+
+    year_stem = pillars["year"][0]
+    is_yang_stem = (TIANGAN.index(year_stem) % 2 == 0)
+
+    if norm_gender == "未知":
+        direction = "未定"
+        desc = "未提供性别信息，无法推断大运顺逆（阳男阴女顺推，阴男阳女逆推）"
+        dayun_pillars = []
+    else:
+        if (is_yang_stem and norm_gender == "男") or ((not is_yang_stem) and norm_gender == "女"):
+            direction = "顺行"
+            desc = f"{'阳' if is_yang_stem else '阴'}年生{'男' if norm_gender == '男' else '女'}，大运顺行（月令向后顺推）"
+            step_dir = 1
+        else:
+            direction = "逆行"
+            desc = f"{'阳' if is_yang_stem else '阴'}年生{'女' if norm_gender == '女' else '男'}，大运逆行（月令向前逆推）"
+            step_dir = -1
+
+        m_stem_idx = TIANGAN.index(pillars["month"][0])
+        m_branch_idx = DIZHI.index(pillars["month"][1])
+
+        dayun_pillars = []
+        for step in range(1, 9):
+            s_idx = (m_stem_idx + step_dir * step) % 10
+            b_idx = (m_branch_idx + step_dir * step) % 12
+            dayun_pillars.append(TIANGAN[s_idx] + DIZHI[b_idx])
+
+    return {
+        "gender": norm_gender,
+        "zaohua": zaohua,
+        "year_stem_polarity": "阳" if is_yang_stem else "阴",
+        "direction": direction,
+        "description": desc,
+        "pillars": dayun_pillars
+    }
+
+
 def evaluate_wuxing_and_yongshen(pillars: dict) -> dict:
     """
     Count WuXing elements and determine prioritized XiYongShen (喜用神)
@@ -440,12 +493,13 @@ def audit_phonetics_and_safety(surname: str, given_name: str) -> dict:
     }
 
 
-def run_full_audit(date_str: str, city: str, surname: str, given_name: str = "") -> dict:
+def run_full_audit(date_str: str, city: str, surname: str, given_name: str = "", gender: str = "") -> dict:
     """
     Unified end-to-end execution pipeline.
     """
     solar_res = calculate_true_solar_time(date_str, city)
     pillars = get_bazi_pillars(solar_res["solar_datetime"])
+    dayun = calculate_dayun(pillars, gender)
     wuxing = evaluate_wuxing_and_yongshen(pillars)
     phonetics = audit_phonetics_and_safety(surname, given_name) if given_name else None
 
@@ -466,6 +520,7 @@ def run_full_audit(date_str: str, city: str, surname: str, given_name: str = "")
     return {
         "true_solar_time": solar_res,
         "bazi": pillars,
+        "dayun": dayun,
         "wuxing": wuxing,
         "phonetics": phonetics,
         "suggested_elements": wuxing["yongshen"],
@@ -486,10 +541,11 @@ def main():
     parser.add_argument("--city", required=True, help="Birth city in China, e.g. '杭州' or '北京'")
     parser.add_argument("--surname", required=True, help="Surname, e.g. '陈'")
     parser.add_argument("--name", default="", help="Candidate given name to audit, e.g. '言溪'")
+    parser.add_argument("--gender", default="", help="Baby gender: '男'/'女', '乾造'/'坤造', 'boy'/'girl'")
     parser.add_argument("--json", action="store_true", help="Output raw JSON")
 
     args = parser.parse_args()
-    result = run_full_audit(args.date, args.city, args.surname, args.name)
+    result = run_full_audit(args.date, args.city, args.surname, args.name, args.gender)
 
     if args.json:
         res_copy = dict(result)
@@ -502,9 +558,13 @@ def main():
         print(f"  → 经度: {result['true_solar_time']['longitude']}°E, 时差: {result['true_solar_time']['offset_minutes']} 分钟")
         print(f"  → 真太阳时: {result['true_solar_time']['true_solar_time']}")
         print("-" * 60)
-        print(f"【八字四柱排盘】({result['bazi']['zi_type']})")
+        zao_str = f" ({result['dayun']['zaohua']})" if result.get('dayun') and result['dayun']['zaohua'] != '未定造化' else f" ({result['bazi']['zi_type']})"
+        print(f"【八字四柱与大运排盘】{zao_str}")
         print(f"  年柱: {result['bazi']['year']} | 月柱: {result['bazi']['month']} | 日柱: {result['bazi']['day']} | 时柱: {result['bazi']['hour']}")
         print(f"  日元天干: {result['bazi']['day_master']} ({result['wuxing']['day_master_wuxing']}命)")
+        if result.get('dayun') and result['dayun']['gender'] != '未知':
+            print(f"  大运走向: {result['dayun']['zaohua']} · {result['dayun']['direction']} ({result['dayun']['description']})")
+            print(f"  前八步大运: {' → '.join(result['dayun']['pillars'][:6])}...")
         print("-" * 60)
         print(f"【五行平衡与喜用神判定】")
         print(f"  五行统计: {result['wuxing']['wuxing_counts']}")

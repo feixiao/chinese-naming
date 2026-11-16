@@ -99,15 +99,40 @@ class TestNamingEngine(unittest.TestCase):
         self.assertTrue(res_dy["has_dieyun"], "Should detect final rhyme collision (叠韵)")
         self.assertFalse(res_dy["is_harmonious"], "Dieyun should fail harmony check")
 
+    def test_bazi_dayun_and_gender_calculation(self):
+        # 2026 is BingWu (丙午), Stem 丙 is Yang (阳干)
+        dt_2026 = datetime(2026, 8, 15, 14, 26)
+        pillars_2026 = engine.get_bazi_pillars(dt_2026)
+        self.assertEqual(pillars_2026["year"], "丙午")
+        self.assertEqual(pillars_2026["month"], "丙申")
+
+        # 1. Male (乾造): Yang stem year -> Forward (顺行)
+        dayun_male = engine.calculate_dayun(pillars_2026, gender="男")
+        self.assertEqual(dayun_male["gender"], "男")
+        self.assertEqual(dayun_male["zaohua"], "乾造")
+        self.assertEqual(dayun_male["direction"], "顺行")
+        self.assertEqual(dayun_male["pillars"][:4], ["丁酉", "戊戌", "己亥", "庚子"])
+
+        # 2. Female (坤造): Yang stem year -> Backward (逆行)
+        dayun_female = engine.calculate_dayun(pillars_2026, gender="女")
+        self.assertEqual(dayun_female["gender"], "女")
+        self.assertEqual(dayun_female["zaohua"], "坤造")
+        self.assertEqual(dayun_female["direction"], "逆行")
+        self.assertEqual(dayun_female["pillars"][:4], ["乙未", "甲午", "癸巳", "壬辰"])
+
     def test_cli_full_pipeline(self):
         res = engine.run_full_audit(
             date_str="2026-08-15 14:30",
             city="杭州",
             surname="陈",
-            given_name="言溪"
+            given_name="言溪",
+            gender="女"
         )
         self.assertIn("true_solar_time", res)
         self.assertIn("bazi", res)
+        self.assertIn("dayun", res)
+        self.assertEqual(res["dayun"]["zaohua"], "坤造")
+        self.assertEqual(res["dayun"]["direction"], "逆行")
         self.assertIn("wuxing", res)
         self.assertIn("phonetics", res)
         self.assertIn("radar_scores", res)

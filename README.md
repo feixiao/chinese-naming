@@ -1,4 +1,4 @@
-# `pm-chinese-naming` · 华人严谨起名与声律考据引擎
+# `chinese-naming` · 华人严谨起名与声律考据引擎
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg)](https://opensource.org/licenses/MIT)
 [![Agent Skills Specification](https://img.shields.io/badge/Agent_Skills-Ready-emerald.svg)](https://agentskills.io)
@@ -9,7 +9,7 @@
 
 ---
 
-## 🎯 为什么需要 `pm-chinese-naming`？
+## 🎯 为什么需要 `chinese-naming`？
 
 在华人文化背景下，起名是牵动三代人情感的严肃大事。然而现存方案充满痛点：
 * **通用大模型原生问答**：文采斐然但存在致命“理科幻觉”——算错经纬度真太阳时、分不清八字调候用神（盲目“缺啥补啥”）、甚至捏造诗经名句；
@@ -17,7 +17,7 @@
 * **市面 AI 起名小程序**：90% 是廉价 Prompt 套壳，起出来的名字全是“梓涵/子轩/雨泽”等烂大街网文风；
 * **家庭决策断层**：年轻人想要清新审美，长辈想要传统五行规矩，缺乏一份能平息博弈的“共识交付物”。
 
-`pm-chinese-naming` 通过**确定性算法底座 + 正统典籍溯源 + 长辈说服文书**，彻底解决以上顽疾。
+`chinese-naming` 通过**确定性算法底座 + 正统典籍溯源 + 长辈说服文书**，彻底解决以上顽疾。
 
 ---
 
@@ -66,11 +66,11 @@
 本引擎无需任何外部依赖（纯 Python 3.8+ 标准库）：
 
 ```bash
-# 运行完整起名与安全性体检
-python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "陈" --name "言溪"
+# 运行完整起名与安全性体检 (支持 --gender 指定男宝/女宝，自动推导乾造/坤造与大运顺逆)
+python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "陈" --name "言溪" --gender "女"
 
 # 导出原始 JSON 供小程序或后端 API 消费
-python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "陈" --name "言溪" --json
+python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "陈" --name "言溪" --gender "女" --json
 ```
 
 **命令行输出示例：**
@@ -80,14 +80,17 @@ python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "�
   → 经度: 120.1551°E, 时差: -3.56 分钟
   → 真太阳时: 2026-08-15 14:26:26
 ------------------------------------------------------------
-【八字四柱排盘】(普通时辰)
+【八字四柱与大运排盘】 (坤造)
   年柱: 丙午 | 月柱: 丙申 | 日柱: 辛酉 | 时柱: 乙未
   日元天干: 辛 (金命)
+  大运走向: 坤造 · 逆行 (阳年生女，大运逆行（月令向前逆推）)
+  前八步大运: 乙未 → 甲午 → 癸巳 → 壬辰 → 辛卯 → 庚寅...
 ------------------------------------------------------------
 【五行平衡与喜用神判定】
   五行统计: {'木': 1, '火': 3, '土': 1, '金': 3, '水': 0}
-  建议补益五行: 火, 木
-  推荐部首偏旁: 日, 火, 灬, 光
+  调候指引: 秋金锐利而火势并存，火金交战，必须以【水】通关润局生木
+  建议补益五行: 水, 木
+  推荐部首偏旁: 水, 氵, 雨, 冫
 ------------------------------------------------------------
 【声律与安全性体检】全名: 陈言溪
   平仄声律: 平平平 (音律和谐起伏)
@@ -100,13 +103,13 @@ python3 scripts/engine.py --date "2026-08-15 14:30" --city "杭州" --surname "�
 将本目录软链接或复制到全局 Agent Skills 目录：
 ```bash
 # Claude Code
-cp -r . ~/.claude/skills/pm-chinese-naming
+cp -r . ~/.claude/skills/chinese-naming
 
 # Cursor / Codex / Antigravity / OpenClaw
-cp -r . ~/.agents/skills/pm-chinese-naming
+cp -r . ~/.agents/skills/chinese-naming
 ```
 在会话中直接输入：
-> `/name baby 姓陈，公历2026年8月15日14点30分出生在杭州，想要文雅清隽、暗合五行调候的名字`
+> `/name baby 姓陈，女宝，公历2026年8月15日14点30分出生在杭州，想要文雅清隽、暗合五行调候的名字`
 
 ---
 

@@ -19,7 +19,7 @@ class TestE2EPipeline(unittest.TestCase):
 
         with open(self.readme_path, "r", encoding="utf-8") as f:
             readme = f.read()
-        self.assertIn("pm-chinese-naming", readme)
+        self.assertTrue("chinese-naming" in readme or "pm-chinese-naming" in readme)
         self.assertIn("/name baby", readme)
         self.assertIn("真太阳时", readme)
         self.assertIn("MIT", readme)
@@ -36,6 +36,7 @@ class TestE2EPipeline(unittest.TestCase):
             "--city", "杭州",
             "--surname", "陈",
             "--name", "言溪",
+            "--gender", "女",
             "--json"
         ]
         result = subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -43,6 +44,9 @@ class TestE2EPipeline(unittest.TestCase):
 
         self.assertIn("true_solar_time", data)
         self.assertIn("bazi", data)
+        self.assertIn("dayun", data)
+        self.assertEqual(data["dayun"]["zaohua"], "坤造")
+        self.assertEqual(data["dayun"]["direction"], "逆行")
         self.assertIn("wuxing", data)
         self.assertIn("phonetics", data)
         self.assertEqual(data["phonetics"]["full_name"], "陈言溪")
