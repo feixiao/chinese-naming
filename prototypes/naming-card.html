@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>考名策 · 华人新生儿严谨起名与声律考据</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&display=swap');
+    body {
+      font-family: 'Noto Serif SC', 'Songti SC', 'SimSun', serif;
+      background-color: #FAF8F5;
+    }
+    .paper-texture {
+      background-color: #FCFBF9;
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    }
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="text-zinc-800 antialiased min-h-screen pb-16">
+
+  <!-- 🛠️ PM 评审状态切换器 (Floating Debug Bar) -->
+  <aside aria-label="PM 评审状态切换器" class="sticky top-0 z-50 bg-stone-900 text-stone-200 px-4 py-2 text-xs flex flex-wrap items-center justify-between border-b border-stone-800 shadow-md">
+    <div class="flex items-center space-x-2 font-mono">
+      <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+      <span class="font-bold text-amber-400">🛠️ PM 评审状态切换器</span>
+      <span class="text-stone-400">| 原生组件预览</span>
+    </div>
+    <div class="flex space-x-1 sm:space-x-2 mt-1 sm:mt-0">
+      <button onclick="switchState('state-normal')" id="btn-normal" class="px-2.5 py-1 rounded bg-amber-600 text-white font-medium hover:bg-amber-500 transition">1. 正常提案</button>
+      <button onclick="switchState('state-empty')" id="btn-empty" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">2. 空状态</button>
+      <button onclick="switchState('state-loading')" id="btn-loading" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">3. 排盘中</button>
+      <button onclick="switchState('state-blocked')" id="btn-blocked" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">4. 重名拦截</button>
+      <button onclick="switchState('state-elder')" id="btn-elder" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">5. 长辈说服卡</button>
+    </div>
+  </aside>
+
+  <!-- 主容器 -->
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 pt-8">
+    
+    <!-- 头部品牌栏 -->
+    <header class="text-center mb-8 border-b border-stone-200 pb-6">
+      <div class="inline-block px-3 py-1 bg-amber-100 text-amber-900 text-xs font-semibold tracking-widest rounded-full mb-3">
+        国学典籍 · 确定性真太阳时算法 · 声律美学
+      </div>
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-wider">
+        考名策 · 新生儿文化考据起名
+      </h1>
+      <p class="mt-2 text-sm text-stone-600 max-w-lg mx-auto">
+        以天文历法为根柢，以诗书典籍为意象，为孩子赋予穿越时光的庄雅名字与家庭共识。
+      </p>
+    </header>
+
+    <!-- STATE 1: 正常展示 (Active Proposal) -->
+    <div id="state-normal" class="state-container space-y-6">
+      
+      <!-- 排盘摘要条 -->
+      <div class="bg-amber-50/70 border border-amber-200/80 rounded-lg p-4 flex flex-wrap items-center justify-between text-xs text-stone-700">
+        <div>
+          <span class="font-bold text-amber-900">真太阳时校准：</span>
+          2026年8月15日 14:26:26 (浙江杭州 · 经度 120.15°E 时差 -3.5分)
+        </div>
+        <div class="mt-2 sm:mt-0 font-mono">
+          <span class="font-bold text-amber-900">八字四柱：</span>
+          丙午 (年) · 丙申 (月) · 辛酉 (日) · 乙未 (时)
+        </div>
+        <div class="mt-2 sm:mt-0">
+          <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 font-bold">日元辛金 · 调候急救【水】与【木】</span>
+        </div>
+      </div>
+
+      <!-- 主候选名卡片 -->
+      <div class="paper-texture border border-stone-200 rounded-xl p-6 sm:p-8">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+          
+          <!-- 左侧：名字与字形解析 (7 cols) -->
+          <div class="md:col-span-7 space-y-6">
+            <div class="flex items-baseline space-x-4 border-b border-stone-100 pb-4">
+              <span class="text-xs text-stone-400 font-mono">01/推荐首选</span>
+              <h2 class="text-4xl sm:text-5xl font-black text-stone-900 tracking-widest">
+                陈言溪
+              </h2>
+              <span class="text-sm text-stone-500 font-sans tracking-wide">Chén Yán Xī</span>
+            </div>
+
+            <!-- 声律音波与平仄 -->
+            <div class="bg-stone-50 rounded-lg p-3 text-xs space-y-1.5 border border-stone-200/60">
+              <div class="flex justify-between items-center text-stone-500 font-medium">
+                <span>声律平仄</span>
+                <span class="text-emerald-700 font-bold">平平平 (清亮悠远，音律上扬)</span>
+              </div>
+              <div class="flex items-center space-x-2 pt-1">
+                <span class="px-2 py-0.5 bg-stone-200 text-stone-700 rounded font-mono">陈 chén (阳平)</span>
+                <span class="text-stone-300">→</span>
+                <span class="px-2 py-0.5 bg-stone-200 text-stone-700 rounded font-mono">言 yán (阳平)</span>
+                <span class="text-stone-300">→</span>
+                <span class="px-2 py-0.5 bg-stone-200 text-stone-700 rounded font-mono">溪 xī (阴平)</span>
+              </div>
+            </div>
+
+            <!-- 典籍溯源 -->
+            <div class="space-y-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-amber-900 flex items-center space-x-1.5">
+                <span>📜</span>
+                <span>正统典籍善本溯源</span>
+              </h3>
+              <blockquote class="bg-amber-50/50 border-l-2 border-amber-700 pl-3 py-1.5 text-xs text-stone-700 italic">
+                “烟水照容色，言溪不可量。” —— 唐 · 杜牧《池州清溪》<br>
+                “大音希声，立德立言。” —— 《左传·襄公二十四年》
+              </blockquote>
+            </div>
+
+            <!-- 字源演变 -->
+            <div class="space-y-2 text-xs text-stone-600 leading-relaxed">
+              <h3 class="font-bold text-stone-800">六书字本义：</h3>
+              <p>
+                <strong class="text-stone-900">「言」</strong>：甲骨文象舌出言，指直言不讳、立身行道之德。<br>
+                <strong class="text-stone-900">「溪」</strong>：从水，奚声。山间澄澈甘泉也，喻胸襟开阔、灵动不竭。
+              </p>
+            </div>
+          </div>
+
+          <!-- 右侧：五维雷达图与五行调和 (5 cols) -->
+          <div class="md:col-span-5 flex flex-col justify-between border-t md:border-t-0 md:border-l border-stone-100 pt-6 md:pt-0 md:pl-8">
+            <div>
+              <h3 class="text-xs font-bold text-stone-700 mb-3 flex items-center justify-between">
+                <span>五维品质雷达评估</span>
+                <span class="text-amber-800 font-mono text-sm font-extrabold">综合分: 96</span>
+              </h3>
+              <!-- SVG 雷达图模拟 -->
+              <div class="relative w-48 h-48 mx-auto my-2">
+                <svg viewBox="0 0 200 200" class="w-full h-full">
+                  <!-- 背景多边形网格 -->
+                  <polygon points="100,20 176,75 147,165 53,165 24,75" fill="none" stroke="#E5E5E5" stroke-width="1"/>
+                  <polygon points="100,50 148,85 129,145 71,145 52,85" fill="none" stroke="#E5E5E5" stroke-width="1"/>
+                  <!-- 轴线 -->
+                  <line x1="100" y1="100" x2="100" y2="20" stroke="#E5E5E5" stroke-width="1"/>
+                  <line x1="100" y1="100" x2="176" y2="75" stroke="#E5E5E5" stroke-width="1"/>
+                  <line x1="100" y1="100" x2="147" y2="165" stroke="#E5E5E5" stroke-width="1"/>
+                  <line x1="100" y1="100" x2="53" y2="165" stroke="#E5E5E5" stroke-width="1"/>
+                  <line x1="100" y1="100" x2="24" y2="75" stroke="#E5E5E5" stroke-width="1"/>
+                  <!-- 实际数据多边形 -->
+                  <polygon points="100,28 170,80 142,158 60,158 30,80" fill="rgba(217, 119, 6, 0.25)" stroke="#D97706" stroke-width="2"/>
+                </svg>
+                <span class="absolute top-0 left-1/2 -translate-x-1/2 text-[10px] text-stone-500">音律美感 95</span>
+                <span class="absolute top-1/4 right-0 text-[10px] text-stone-500">文化出处 94</span>
+                <span class="absolute bottom-1 right-2 text-[10px] text-stone-500">五行平衡 96</span>
+                <span class="absolute bottom-1 left-2 text-[10px] text-stone-500">字形架构 92</span>
+                <span class="absolute top-1/4 left-0 text-[10px] text-stone-500">无重名 98</span>
+              </div>
+            </div>
+
+            <!-- 避坑体检结果 -->
+            <div class="mt-4 pt-4 border-t border-stone-100 text-xs space-y-1.5">
+              <div class="flex items-center text-emerald-700 font-medium">
+                <span class="mr-1.5">✅</span>
+                <span>千禧高频重名黑名单已排查 (非梓轩/子涵)</span>
+              </div>
+              <div class="flex items-center text-emerald-700 font-medium">
+                <span class="mr-1.5">✅</span>
+                <span>普通话及方言不雅谐音梗已安全过滤</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部快捷动作 -->
+        <div class="mt-8 pt-6 border-t border-stone-100 flex flex-wrap items-center justify-between gap-4">
+          <div class="text-xs text-stone-500">
+            备选方案：陈安岚 · 陈思远 · 陈渊澄
+          </div>
+          <button onclick="switchState('state-elder')" class="px-4 py-2 rounded-lg bg-amber-800 text-white text-xs font-semibold hover:bg-amber-700 transition shadow">
+            💌 一键生成《长辈说服卡》
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATE 2: 空状态 (Empty) -->
+    <div id="state-empty" class="state-container hidden paper-texture border border-stone-200 rounded-xl p-12 text-center space-y-4">
+      <div class="w-16 h-16 bg-amber-50 text-amber-800 rounded-full flex items-center justify-center text-2xl mx-auto border border-amber-200">
+        ✍️
+      </div>
+      <h3 class="text-lg font-bold text-stone-800">尚未录入新生儿出生信息</h3>
+      <p class="text-xs text-stone-500 max-w-sm mx-auto leading-relaxed">
+        请录入宝宝的姓氏、公历出生年月日时分及出生所在城市。系统将自动进行真太阳时经纬度校准与干支排盘。
+      </p>
+      <div class="pt-2">
+        <button onclick="switchState('state-loading')" class="px-5 py-2.5 bg-stone-900 text-white text-xs rounded-lg font-medium hover:bg-stone-800 transition">
+          开始严谨起名
+        </button>
+      </div>
+    </div>
+
+    <!-- STATE 3: 算法计算中 (Loading) -->
+    <div id="state-loading" class="state-container hidden paper-texture border border-stone-200 rounded-xl p-16 text-center space-y-6">
+      <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-amber-200 border-t-amber-800"></div>
+      <div class="space-y-2">
+        <h3 class="text-base font-bold text-stone-800">天文历法与声律引擎推算中...</h3>
+        <p class="text-xs text-stone-500 font-mono">
+          [1/3] 正在校准经度真太阳时... [2/3] 正在排盘四柱八字与调候用神... [3/3] 检索正统诗经楚辞典籍...
+        </p>
+      </div>
+      <div class="w-48 h-1.5 bg-stone-100 rounded-full mx-auto overflow-hidden">
+        <div class="h-full bg-amber-600 rounded-full animate-pulse w-3/4"></div>
+      </div>
+    </div>
+
+    <!-- STATE 4: 安全拦截异常 (Blocked / Cliché) -->
+    <div id="state-blocked" class="state-container hidden paper-texture border border-red-200 rounded-xl p-8 space-y-6">
+      <div class="flex items-start space-x-3 text-red-800 border-b border-red-100 pb-4">
+        <span class="text-2xl">⚠️</span>
+        <div>
+          <h3 class="text-base font-bold">安全红线触发：检测到千禧重名潮与谐音风险</h3>
+          <p class="text-xs text-red-600 mt-0.5">名字「陈梓涵」未通过现代社会学重名度与音律防坑审查。</p>
+        </div>
+      </div>
+      <div class="bg-red-50/50 rounded-lg p-4 text-xs space-y-2 text-stone-700">
+        <p><strong class="text-red-900">● 烂大街高频名预警：</strong>「梓涵」在过去 10 年全国新生儿登记名中位列前三，同龄人重名率达 3.4%，缺乏文化辨识度。</p>
+        <p><strong class="text-red-900">● 替代建议：</strong>建议换用《诗经·大雅》之「涵清」、唐诗之「语涵」或调候契合的「言溪」。</p>
+      </div>
+      <button onclick="switchState('state-normal')" class="text-xs font-semibold text-amber-800 underline hover:text-amber-900">
+        ← 返回推荐提案
+      </button>
+    </div>
+
+    <!-- STATE 5: 长辈说服卡展开 (Elder Persuasion View) -->
+    <div id="state-elder" class="state-container hidden paper-texture border-2 border-amber-800/80 rounded-xl p-8 sm:p-10 space-y-6 shadow-xl">
+      <div class="flex justify-between items-center border-b border-amber-200 pb-4">
+        <span class="text-xs font-bold text-amber-900 tracking-wider">💌 专属文书 · 长辈说服卡 (解决家庭命名分歧)</span>
+        <button onclick="copyElderLetter()" id="copy-btn" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs rounded transition font-medium">
+          复制全文
+        </button>
+      </div>
+
+      <div id="elder-letter-content" class="bg-amber-50/40 p-6 rounded-lg text-stone-800 text-sm leading-relaxed space-y-3 font-serif border border-amber-100">
+        <p class="font-bold text-stone-900">敬呈 爷爷、奶奶、外公、外婆：</p>
+        <p>
+          欣闻宝宝诞生于丙午年、申月、辛酉日，金气纯正，秋水澄明。古圣先贤论干支平衡，讲求“金盛得水以濯秀，木茂承霖而发荣”。
+        </p>
+        <p>
+          经慎密考据，为孩子择名<strong class="text-amber-950 font-black">「言溪」</strong>：
+        </p>
+        <p>
+          其一，<strong>五行通和</strong>：「溪」字内含川流活水，恰补命中调候之水运，温润而不燥烈；「言」五行属木，水生木旺，调和全局。<br>
+          其二，<strong>典籍大雅</strong>：取自《左传》“立德、立功、立言”三不朽之道，兼合唐代杜牧名句“烟水照容色，言溪不可量”之悠雅。<br>
+          其三，<strong>声律庄稳</strong>：平平平音律朗朗上口，全无网络怪俗轻薄之气，笔画端庄大方。
+        </p>
+        <p>
+          此名既成全后辈清新雅致之意趣，更深合长辈祈愿四时吉庆、福泽绵延之厚意。特此呈书，敬祈大人欢喜定夺！
+        </p>
+      </div>
+
+      <div class="text-right">
+        <button onclick="switchState('state-normal')" class="text-xs text-stone-500 hover:text-stone-800 underline">
+          ← 关闭并返回详情
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function switchState(stateId) {
+      document.querySelectorAll('.state-container').forEach(el => el.classList.add('hidden'));
+      document.getElementById(stateId).classList.remove('hidden');
+
+      // Update button styling
+      const buttons = {
+        'state-normal': 'btn-normal',
+        'state-empty': 'btn-empty',
+        'state-loading': 'btn-loading',
+        'state-blocked': 'btn-blocked',
+        'state-elder': 'btn-elder'
+      };
+      Object.values(buttons).forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+          btn.className = 'px-2.5 py-1 rounded bg-stone-800 text-stone-300 hover:bg-stone-700 transition';
+        }
+      });
+      const activeBtn = document.getElementById(buttons[stateId]);
+      if (activeBtn) {
+        activeBtn.className = 'px-2.5 py-1 rounded bg-amber-600 text-white font-medium hover:bg-amber-500 transition';
+      }
+    }
+
+    function copyElderLetter() {
+      const text = document.getElementById('elder-letter-content').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.innerText = '已复制到剪贴板！';
+        setTimeout(() => btn.innerText = '复制全文', 2000);
+      });
+    }
+  </script>
+</body>
+</html>
