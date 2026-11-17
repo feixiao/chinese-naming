@@ -19,6 +19,20 @@ import math
 import argparse
 from datetime import datetime, timedelta
 
+
+class SolarTermPrecisionError(ValueError):
+    """Raised when the day-level solar-term table cannot determine a month pillar."""
+
+
+def _is_near_approximate_solar_term(dt: datetime) -> bool:
+    """Return whether ``dt`` is within one calendar day of an approximate term date."""
+    current_date = dt.date()
+    for term_month, term_day in SOLAR_TERMS_DATES:
+        term_date = datetime(dt.year, term_month, term_day).date()
+        if abs((current_date - term_date).days) <= 1:
+            return True
+    return False
+
 # Constants for GanZhi
 TIANGAN = ["甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬", "癸"]
 DIZHI = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"]
@@ -98,9 +112,10 @@ CHAR_PHONETICS = {
     "梦": (4, "m", "eng"), "韵": (4, "y", "un"), "逸": (4, "y", "i"), "越": (4, "y", "ue"),
     "跃": (4, "y", "ue"), "峻": (4, "j", "un"), "正": (4, "zh", "eng"), "道": (4, "d", "ao"),
     "德": (2, "d", "e"), "厚": (4, "h", "ou"), "玲": (2, "l", "ing"), "莉": (4, "l", "i"),
-    "光": (1, "g", "uang"), "费": (4, "f", "ei"), "澄": (2, "ch", "eng"), "川": (1, "ch", "uan"),
-    "允": (3, "y", "un"), "松": (1, "s", "ong"), "柏": (3, "b", "ai"), "衡": (2, "h", "eng"),
-    "津": (1, "j", "in"), "之": (1, "zh", "i"), "澜": (2, "l", "an"), "澈": (4, "ch", "e"),
+    "光": (1, "g", "uang"), "费": (4, "f", "ei"), "韩": (2, "h", "an"), "汝": (3, "r", "u"),
+    "澄": (2, "ch", "eng"), "川": (1, "ch", "uan"), "允": (3, "y", "un"), "松": (1, "s", "ong"),
+    "柏": (3, "b", "ai"), "衡": (2, "h", "eng"), "津": (1, "j", "in"), "之": (1, "zh", "i"),
+    "澜": (2, "l", "an"), "澈": (4, "ch", "e"),
     "沧": (1, "c", "ang"), "柯": (1, "k", "e"), "樾": (4, "y", "ue"), "启": (3, "q", "i"),
     "漪": (1, "y", "i"), "芷": (3, "zh", "i"), "舒": (1, "sh", "u")
 }
@@ -147,8 +162,10 @@ def calculate_true_solar_time(dt_str: str, city_name: str) -> dict:
     elif len(dt_str) == 19:
         dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
     else:
-        dt = datetime.strptime(dt_str[:16], "%Y-%m-%d %H:%M")
-
+        raise ValueError(
+            "出生时间必须精确到分钟，格式为 'YYYY-MM-DD HH:MM'；"
+            "缺少时分时不得推定时柱或大运。"
+        )
     # Longitude offset: 4 minutes per degree from 120.0E
     lng_offset_minutes = (lng - 120.0) * 4.0
 
@@ -439,47 +456,44 @@ def audit_phonetics_and_safety(surname: str, given_name: str) -> dict:
             break
 
     # 3. Phonetic analysis: Tones, ShuangSheng (双声), DieYun (叠韵)
+    unknown_phonetic_chars = [ch for ch in full_name if ch not in CHAR_PHONETICS]
+    phonetic_status = "complete" if not unknown_phonetic_chars else "incomplete"
     tones = []
     initials = []
     finals = []
-    for ch in full_name:
-        p_info = CHAR_PHONETICS.get(ch)
-        if p_info:
-            tone_num, init, fin = p_info
-        else:
-            tone_num, init, fin = (1, ch, ch) # Fallback heuristic
-        tones.append("平" if tone_num in [1, 2] else "仄")
-        initials.append(init)
-        finals.append(fin)
 
-    pingze_pattern = "".join(tones)
+    if phonetic_status == "complete":
+        for ch in full_name:
+            tone_num, init, fin = CHAR_PHONETICS[ch]
+            tones.append("平" if tone_num in [1, 2] else "仄")
+            initials.append(init)
+            finals.append(fin)
 
-    # Check given name internal phonetics (相邻字检查)
+    pingze_pattern = "".join(tones) if phonetic_status == "complete" else None
+
+    # Check given-name internal phonetics only when every character is verified.
     has_shuangsheng = False
     has_dieyun = False
-    if len(given_name) >= 2:
-        # Check initials and finals for characters in given_name
-        gn_initials = []
-        gn_finals = []
-        for ch in given_name:
-            p_info = CHAR_PHONETICS.get(ch)
-            if p_info:
-                gn_initials.append(p_info[1])
-                gn_finals.append(p_info[2])
-            else:
-                gn_initials.append(ch)
-                gn_finals.append(ch)
-
+    if phonetic_status == "complete" and len(given_name) >= 2:
+        gn_initials = [CHAR_PHONETICS[ch][1] for ch in given_name]
+        gn_finals = [CHAR_PHONETICS[ch][2] for ch in given_name]
         for i in range(len(gn_initials) - 1):
-            if gn_initials[i] == gn_initials[i+1]:
+            if gn_initials[i] == gn_initials[i + 1]:
                 has_shuangsheng = True
-            if gn_finals[i] == gn_finals[i+1]:
+            if gn_finals[i] == gn_finals[i + 1]:
                 has_dieyun = True
 
-    # Harmony rating:
-    # Fails if end with 仄仄 or 仄仄仄, or has ShuangSheng (拗口), or has DieYun (发音打滑)
-    is_tonal_ok = not (pingze_pattern.endswith("仄仄") or pingze_pattern == "仄仄仄")
-    is_harmonious = is_tonal_ok and (not has_shuangsheng) and (not has_dieyun)
+    # An incomplete pronunciation table cannot support a harmony judgement.
+    is_tonal_ok = (
+        not (pingze_pattern.endswith("仄仄") or pingze_pattern == "仄仄仄")
+        if phonetic_status == "complete"
+        else None
+    )
+    is_harmonious = (
+        is_tonal_ok and not has_shuangsheng and not has_dieyun
+        if phonetic_status == "complete"
+        else None
+    )
 
     return {
         "full_name": full_name,
@@ -489,37 +503,34 @@ def audit_phonetics_and_safety(surname: str, given_name: str) -> dict:
         "cliche_matches": list(set(cliche_matches)),
         "has_homophone_trap": has_homophone,
         "homophone_trap": homo_trap,
+        "homophone_status": "matched" if has_homophone else "not_matched_in_builtin_lexicon",
         "has_shuangsheng": has_shuangsheng,
         "has_dieyun": has_dieyun,
+        "phonetic_status": phonetic_status,
+        "unknown_phonetic_chars": unknown_phonetic_chars,
         "tones": tones,
         "pingze_pattern": pingze_pattern,
-        "is_harmonious": is_harmonious
+        "is_harmonious": is_harmonious,
     }
 
-
 def run_full_audit(date_str: str, city: str, surname: str, given_name: str = "", gender: str = "") -> dict:
-    """
-    Unified end-to-end execution pipeline.
+    """Run an auditable naming assessment for a birth time with minute precision.
+
+    The built-in solar-term table is day-level only. Dates within one day of a
+    table boundary require a precise ephemeris and are rejected rather than
+    assigned a potentially wrong month pillar.
     """
     solar_res = calculate_true_solar_time(date_str, city)
+    if _is_near_approximate_solar_term(solar_res["solar_datetime"]):
+        raise SolarTermPrecisionError(
+            "出生时刻接近节气交节日；内置日级节气表无法可靠判定月柱。"
+            "请使用精确节气历后重试。"
+        )
+
     pillars = get_bazi_pillars(solar_res["solar_datetime"])
     dayun = calculate_dayun(pillars, gender)
     wuxing = evaluate_wuxing_and_yongshen(pillars)
     phonetics = audit_phonetics_and_safety(surname, given_name) if given_name else None
-
-    # Calculate 5-dimension radar scores
-    if phonetics:
-        tone_score = 94 if phonetics["is_harmonious"] else 60
-        safety_score = 30 if (phonetics["is_cliche"] or phonetics["has_homophone_trap"]) else 96
-        wuxing_score = 92
-        origin_score = 95
-        glyph_score = 92
-    else:
-        tone_score = 90
-        safety_score = 90
-        wuxing_score = 90
-        origin_score = 90
-        glyph_score = 90
 
     return {
         "true_solar_time": solar_res,
@@ -529,13 +540,14 @@ def run_full_audit(date_str: str, city: str, surname: str, given_name: str = "",
         "phonetics": phonetics,
         "suggested_elements": wuxing["yongshen"],
         "suggested_radicals": wuxing["favorable_radicals"],
-        "radar_scores": {
-            "音律美感": tone_score,
-            "文化出处": origin_score,
-            "五行调和": wuxing_score,
-            "字形结构": glyph_score,
-            "重名稀缺度": safety_score
-        }
+        "evidence_status": {
+            "birth_time": "minute_input_required",
+            "solar_term": "day_level_table; dates within one day of a term are rejected",
+            "wuxing": "seasonal naming preference; not a medical, financial, or destiny prediction",
+            "phonetics": phonetics["phonetic_status"] if phonetics else "not_requested",
+            "homophone": phonetics["homophone_status"] if phonetics else "not_requested",
+            "classical_sources": "not_verified_by_engine",
+        },
     }
 
 
@@ -570,22 +582,27 @@ def main():
             print(f"  大运走向: {result['dayun']['zaohua']} · {result['dayun']['direction']} ({result['dayun']['description']})")
             print(f"  前八步大运: {' → '.join(result['dayun']['pillars'][:6])}...")
         print("-" * 60)
-        print(f"【五行平衡与喜用神判定】")
+        print("【季候命名偏好（传统文化视角）】")
         print(f"  五行统计: {result['wuxing']['wuxing_counts']}")
-        if result['wuxing']['tiaohou']:
-            print(f"  调候指引: {', '.join(result['wuxing']['tiaohou'])}")
-        print(f"  建议补益五行: {', '.join(result['suggested_elements'])}")
-        print(f"  推荐部首偏旁: {', '.join(result['suggested_radicals'])}")
-        if result['phonetics']:
+        if result["wuxing"]["tiaohou"]:
+            print(f"  季候提示: {', '.join(result['wuxing']['tiaohou'])}")
+        print(f"  推荐意象: {', '.join(result['suggested_elements'])}")
+        print(f"  推荐偏旁: {', '.join(result['suggested_radicals'])}")
+        if result["phonetics"]:
             print("-" * 60)
-            print(f"【声律与安全性体检】全名: {result['phonetics']['full_name']}")
-            print(f"  平仄声律: {result['phonetics']['pingze_pattern']} (音律{'和谐起伏' if result['phonetics']['is_harmonious'] else '略显沉滞'})")
-            if result['phonetics']['has_shuangsheng']:
-                print(f"  声母发音: ⚠️ 触发双声拗口预警 (相邻字声母相同)")
-            if result['phonetics']['has_dieyun']:
-                print(f"  韵母发音: ⚠️ 触发叠韵打滑预警 (相邻字韵母相同)")
-            print(f"  千禧重名风险: {'❌ 命中烂大街高频名' if result['phonetics']['is_cliche'] else '✅ 安全'}")
-            print(f"  不雅谐音风险: {'❌ 存在不良谐音梗' if result['phonetics']['has_homophone_trap'] else '✅ 安全'}")
+            phonetics = result["phonetics"]
+            print(f"【声律与词库检查】全名: {phonetics['full_name']}")
+            if phonetics["phonetic_status"] == "complete":
+                label = "和谐" if phonetics["is_harmonious"] else "存在声律风险"
+                print(f"  平仄声律: {phonetics['pingze_pattern']} ({label})")
+            else:
+                print(f"  平仄声律: 未验证（缺少读音数据：{'、'.join(phonetics['unknown_phonetic_chars'])}）")
+            if phonetics["has_shuangsheng"]:
+                print("  声母发音: ⚠️ 触发双声拗口预警 (相邻字声母相同)")
+            if phonetics["has_dieyun"]:
+                print("  韵母发音: ⚠️ 触发叠韵打滑预警 (相邻字韵母相同)")
+            print(f"  高频名词库: {'命中' if phonetics['is_cliche'] else '未命中内置词库'}")
+            print(f"  谐音词库: {'命中风险词' if phonetics['has_homophone_trap'] else '未命中内置词库；未覆盖方言'}")
         print("=" * 60)
 
 

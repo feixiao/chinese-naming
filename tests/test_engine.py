@@ -27,6 +27,26 @@ class TestNamingEngine(unittest.TestCase):
         t_solar = datetime.strptime(res_wlmq["true_solar_time"], "%Y-%m-%d %H:%M:%S")
         self.assertEqual(t_solar.hour, 9)
 
+    def test_birth_time_must_include_minutes(self):
+        with self.assertRaises(ValueError):
+            engine.run_full_audit(
+                date_str="2027-07-02",
+                city="杭州",
+                surname="韩",
+                given_name="润川",
+                gender="男",
+            )
+
+    def test_dates_near_approximate_solar_terms_are_rejected(self):
+        with self.assertRaises(engine.SolarTermPrecisionError):
+            engine.run_full_audit(
+                date_str="2027-07-07 12:00",
+                city="杭州",
+                surname="韩",
+                given_name="润川",
+                gender="男",
+            )
+
     def test_bazi_early_and_late_zi_shi(self):
         # 2026-05-10 23:30 (Late Zi-shi) vs 2026-05-11 00:30 (Early Zi-shi)
         dt_late = datetime(2026, 5, 10, 23, 30)
@@ -88,6 +108,13 @@ class TestNamingEngine(unittest.TestCase):
         self.assertFalse(res_clean["has_dieyun"])
         self.assertTrue(res_clean["is_harmonious"])
 
+
+    def test_unknown_phonetics_are_not_marked_harmonious(self):
+        result = engine.audit_phonetics_and_safety("韩", "汝珩")
+
+        self.assertEqual(result["phonetic_status"], "incomplete")
+        self.assertIn("珩", result["unknown_phonetic_chars"])
+        self.assertIsNone(result["is_harmonious"])
     def test_phonetics_shuangsheng_and_dieyun_rejection(self):
         # 双声 (Initial consonant clash): "玲莉" (líng lì, both 'l')
         res_ss = engine.audit_phonetics_and_safety("陈", "玲莉")
@@ -135,7 +162,7 @@ class TestNamingEngine(unittest.TestCase):
         self.assertEqual(res["dayun"]["direction"], "逆行")
         self.assertIn("wuxing", res)
         self.assertIn("phonetics", res)
-        self.assertIn("radar_scores", res)
+        self.assertIn("evidence_status", res)
         self.assertIn("suggested_elements", res)
         self.assertIn("水", res["suggested_elements"])
 

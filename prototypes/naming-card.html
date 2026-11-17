@@ -34,7 +34,6 @@
       <button onclick="switchState('state-empty')" id="btn-empty" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">2. 空状态</button>
       <button onclick="switchState('state-loading')" id="btn-loading" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">3. 排盘中</button>
       <button onclick="switchState('state-blocked')" id="btn-blocked" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">4. 重名拦截</button>
-      <button onclick="switchState('state-elder')" id="btn-elder" class="px-2.5 py-1 rounded bg-stone-800 hover:bg-stone-700 transition">5. 长辈说服卡</button>
     </div>
   </aside>
 
@@ -169,13 +168,8 @@
         </div>
 
         <!-- 底部快捷动作 -->
-        <div class="mt-8 pt-6 border-t border-stone-100 flex flex-wrap items-center justify-between gap-4">
-          <div class="text-xs text-stone-500">
-            备选方案：陈安岚 · 陈思远 · 陈渊澄
-          </div>
-          <button onclick="switchState('state-elder')" class="px-4 py-2 rounded-lg bg-amber-800 text-white text-xs font-semibold hover:bg-amber-700 transition shadow">
-            💌 一键生成《长辈说服卡》
-          </button>
+        <div class="mt-8 pt-6 border-t border-stone-100 text-xs text-stone-500">
+          备选方案：陈安岚 · 陈思远 · 陈渊澄
         </div>
       </div>
     </div>
@@ -228,39 +222,6 @@
       </button>
     </div>
 
-    <!-- STATE 5: 长辈说服卡展开 (Elder Persuasion View) -->
-    <div id="state-elder" class="state-container hidden paper-texture border-2 border-amber-800/80 rounded-xl p-8 sm:p-10 space-y-6 shadow-xl">
-      <div class="flex justify-between items-center border-b border-amber-200 pb-4">
-        <span class="text-xs font-bold text-amber-900 tracking-wider">💌 专属文书 · 长辈说服卡 (解决家庭命名分歧)</span>
-        <button onclick="copyElderLetter()" id="copy-btn" class="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs rounded transition font-medium">
-          复制全文
-        </button>
-      </div>
-
-      <div id="elder-letter-content" class="bg-amber-50/40 p-6 rounded-lg text-stone-800 text-sm leading-relaxed space-y-3 font-serif border border-amber-100">
-        <p class="font-bold text-stone-900">敬呈 爷爷、奶奶、外公、外婆：</p>
-        <p>
-          欣闻宝宝诞生于丙午年、申月、辛酉日，金气纯正，秋水澄明。古圣先贤论干支平衡，讲求“金盛得水以濯秀，木茂承霖而发荣”。
-        </p>
-        <p>
-          经慎密考据，为孩子择名<strong class="text-amber-950 font-black">「言溪」</strong>：
-        </p>
-        <p>
-          其一，<strong>五行通和</strong>：「溪」字内含川流活水，恰补命中调候之水运，温润而不燥烈；「言」五行属木，水生木旺，调和全局。<br>
-          其二，<strong>典籍大雅</strong>：取自《左传》“立德、立功、立言”三不朽之道，兼合唐代杜牧名句“烟水照容色，言溪不可量”之悠雅。<br>
-          其三，<strong>声律庄稳</strong>：平平平音律朗朗上口，全无网络怪俗轻薄之气，笔画端庄大方。
-        </p>
-        <p>
-          此名既成全后辈清新雅致之意趣，更深合长辈祈愿四时吉庆、福泽绵延之厚意。特此呈书，敬祈大人欢喜定夺！
-        </p>
-      </div>
-
-      <div class="text-right">
-        <button onclick="switchState('state-normal')" class="text-xs text-stone-500 hover:text-stone-800 underline">
-          ← 关闭并返回详情
-        </button>
-      </div>
-    </div>
 
   </div>
 
@@ -274,8 +235,7 @@
         'state-normal': 'btn-normal',
         'state-empty': 'btn-empty',
         'state-loading': 'btn-loading',
-        'state-blocked': 'btn-blocked',
-        'state-elder': 'btn-elder'
+        'state-blocked': 'btn-blocked'
       };
       Object.values(buttons).forEach(id => {
         const btn = document.getElementById(id);
@@ -289,14 +249,6 @@
       }
     }
 
-    function copyElderLetter() {
-      const text = document.getElementById('elder-letter-content').innerText;
-      navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copy-btn');
-        btn.innerText = '已复制到剪贴板！';
-        setTimeout(() => btn.innerText = '复制全文', 2000);
-      });
-    }
   </script>
 </body>
 </html>

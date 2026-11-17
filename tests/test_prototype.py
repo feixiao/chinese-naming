@@ -14,16 +14,16 @@ class TestPrototypeHTML(unittest.TestCase):
         # Check PM Debug bar
         self.assertTrue("PM 评审状态切换器" in content or "PM 状态切换器" in content, "Must contain PM state switcher")
 
-        # Check 5 states are represented in the DOM
+        # Check supported states are represented in the DOM
         self.assertIn("state-normal", content)
         self.assertIn("state-empty", content)
         self.assertIn("state-loading", content)
         self.assertIn("state-blocked", content)
-        self.assertIn("state-elder", content)
+        self.assertNotIn("state-elder", content)
 
         # Check visual elements
         self.assertIn("<svg", content, "Must include SVG elements for radar chart / visuals")
-        self.assertIn("长辈说服卡", content)
+        self.assertNotIn("长辈说服卡", content)
         self.assertIn("真太阳时", content)
         self.assertIn("八字", content)
 

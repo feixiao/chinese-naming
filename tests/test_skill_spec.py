@@ -31,15 +31,17 @@ class TestSkillSpec(unittest.TestCase):
         self.assertIn("Use this skill when", frontmatter, "Description must start with 'Use this skill when...'")
         self.assertLessEqual(len(frontmatter), 1024, "Frontmatter must not exceed 1024 chars")
 
-        # Check Slash commands
-        slash_commands = ["/name baby", "/name audit", "/name elder", "/name scaffold"]
+        # Check supported slash commands
+        slash_commands = ["/name baby", "/name audit", "/name scaffold"]
         for cmd in slash_commands:
             self.assertIn(cmd, content, f"Missing slash command documentation for {cmd}")
+        self.assertNotIn("/name elder", content)
 
-        # Check Anti-hallucination guardrails
-        self.assertIn("严禁生造诗词", content)
-        self.assertIn("长辈说服", content)
+        # Check evidence and safety guardrails
+        self.assertIn("不编造诗词", content)
         self.assertIn("真太阳时", content)
+        self.assertIn("未命中内置词库", content)
+        self.assertNotIn("长辈说服", content)
 
 if __name__ == "__main__":
     unittest.main()
